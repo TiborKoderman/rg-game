@@ -56,11 +56,11 @@
     }
   ],
   "textures": [
-    "../../../common/images/crate-diffuse.png",
-    "../../../common/images/grass.png"
+    "../common/images/crate-diffuse.png",
+    "../common/images/grass.png"
   ],
   "meshes": [
-    "../../../common/models/cube.json",
-    "../../../common/models/pyramid.json"
+    "../common/models/cube.json",
+    "../common/models/pyramid.json"
   ]
 }
