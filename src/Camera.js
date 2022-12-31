@@ -5,11 +5,14 @@ import { Node } from './Node.js';
 
 export class Camera extends Node {
 
-    constructor(options) {
+    constructor(options = {}) {
         super(options);
+        this.node = options.node ?? null;
+        this.projectionMatrix = options.matrix ? mat4.clone(options.matrix) : mat4.create();
+
         Utils.init(this, this.constructor.defaults, options);
 
-        this.projectionMatrix = mat4.create();
+        // this.projectionMatrix = mat4.create();
         this.updateProjection();
 
         this.pointermoveHandler = this.pointermoveHandler.bind(this);

@@ -4,6 +4,7 @@ export class Mesh {
 
     constructor(options) {
         Utils.init(this, this.constructor.defaults, options);
+        this.primitives = [...(options.primitives ?? [])];
     }
 
 }
