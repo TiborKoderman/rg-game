@@ -199,11 +199,10 @@ export class Renderer {
         });
     }
 
-    getViewProjectionMatrix(camera) {
+    getViewProjectionMatrix(scene, camera) {
         const vpMatrix = camera.globalMatrix;
         mat4.invert(vpMatrix, vpMatrix);
         mat4.mul(vpMatrix, camera.projectionMatrix, vpMatrix);
-        mat4.mul(vpMatrix, camera.globalMatrix, vpMatrix)
         return vpMatrix;
     }
 
@@ -215,10 +214,14 @@ export class Renderer {
         const { program, uniforms } = this.programs.simple;
         gl.useProgram(program);
 
-        const mvpMatrix = this.getViewProjectionMatrix(camera);
+        const mvpMatrix = this.getViewProjectionMatrix(scene, camera);
+
+
         for (const node of scene.nodes) {
             this.renderNode(node, mvpMatrix);
         }
+
+        // this.renderNode(scene, mvpMatrix);
     }
 
 
@@ -226,6 +229,7 @@ export class Renderer {
         const gl = this.gl;
 
         const { program, uniforms } = this.programs.simple;
+
 
         mvpMatrix = mat4.clone(mvpMatrix);
         mat4.mul(mvpMatrix, mvpMatrix, node.localMatrix);
@@ -236,11 +240,23 @@ export class Renderer {
                 this.renderPrimitive(primitive);
             }
         }
+        else if (node.model && node.texture) {
+            gl.bindVertexArray(node.model.vao);
+
+            gl.uniformMatrix4fv(uniforms.uModelViewProjection, false, mvpMatrix);
+
+            gl.activeTexture(gl.TEXTURE0);
+            gl.uniform1i(uniforms.uTexture, 0);
+            gl.bindTexture(gl.TEXTURE_2D, node.texture);
+
+            gl.drawElements(gl.TRIANGLES, node.model.indices, gl.UNSIGNED_SHORT, 0);
+        }
 
         for (const child of node.children) {
             this.renderNode(child, mvpMatrix);
         }
     }
+
 
     renderPrimitive(primitive) {
         const gl = this.gl;

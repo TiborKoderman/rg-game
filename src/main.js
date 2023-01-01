@@ -38,10 +38,10 @@ class App extends Application {
         await this.loader.load(uri);
 
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
+        this.camera = await this.loader.loadCamera('Camera');
 
         this.physics = new Physics(this.scene);
 
-        this.camera = await this.loader.loadCamera('Camera');
 
         if (!this.scene || !this.camera) {
             throw new Error('Scene or Camera not present in glTF');

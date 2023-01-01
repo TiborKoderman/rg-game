@@ -5,6 +5,7 @@ layout (location = 3) in vec2 aTexCoord;
 
 uniform mat4 uModelViewProjection;
 
+
 out vec2 vTexCoord;
 
 void main() {
