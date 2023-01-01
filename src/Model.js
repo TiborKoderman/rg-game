@@ -1,4 +1,4 @@
-import { Node } from './Node.js';
+import { Node } from '../common/engine/Node.js';
 
 export class Model extends Node {
 

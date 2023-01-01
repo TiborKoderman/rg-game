@@ -1,6 +1,6 @@
 import { Mesh } from './Mesh.js';
 
-import { Node } from './Node.js';
+import { Node } from '../common/engine/Node.js';
 import { Model } from './Model.js';
 import { Camera } from './Camera.js';
 

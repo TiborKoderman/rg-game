@@ -11,75 +11,65 @@ class App extends Application {
 
     async start() {
         const gl = this.gl;
-
-        this.loader = new GLTFLoader();
+        
         this.renderer = new Renderer(this.gl);
+
+        await this.load('../common/models/rocks/rocks.gltf')
         
-        await this.loader.load('../common/models/rocks/rocks.gltf')
+        // this.physics = new Physics(this.scene);
+
+        // this.renderer.prepareScene(this.scene);
         
+        this.gl.canvas.addEventListener('click', e => this.gl.canvas.requestPointerLock());
+        document.addEventListener('pointerlockchange', e => {
+            if (document.pointerLockElement === this.gl.canvas) {
+                this.camera.enable();
+            } else {
+                this.camera.disable();
+            }
+        });
+
+
+
+    }
+
+    async load(uri) {
+        this.loader = new GLTFLoader();
+        await this.loader.load(uri);
+
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
-        this.camera = await this.loader.loadNode('Camera');
+
         this.physics = new Physics(this.scene);
 
-        this.camera.aspect = this.aspect;
-        this.camera.camera.updateProjection();
-        this.renderer.prepare(this.scene);
+        this.camera = await this.loader.loadCamera('Camera');
 
         if (!this.scene || !this.camera) {
             throw new Error('Scene or Camera not present in glTF');
         }
 
-        if (!this.camera.camera) {
+        if (!this.camera) {
             throw new Error('Camera node does not contain a camera reference');
         }
-        
-        // await this.load('./src/scene.json');
-        
-        this.gl.canvas.addEventListener('click', e => this.gl.canvas.requestPointerLock());
-        document.addEventListener('pointerlockchange', e => {
-            if (document.pointerLockElement === this.gl.canvas) {
-                this.camera.camera.enable();
-            } else {
-                this.camera.camera.disable();
-            }
-        });
 
-
-        this.renderer = new Renderer(this.gl);
-        this.renderer.prepareScene(this.scene);
-    }
-
-    async load(uri) {
-        const scene = await new SceneLoader().loadScene(uri);
-        const builder = new SceneBuilder(scene);
-        this.scene = builder.build();
-        
-
-        // Find first camera.
-        this.camera = null;
-        this.scene.traverse(node => {
-            if (node instanceof Camera) {
-                this.camera = node;
-            }
-        });
 
         this.camera.aspect = this.aspect;
         this.camera.updateProjection();
-        this.renderer.prepare(this.scene);
+        this.renderer.prepareScene(this.scene);
+
     }
 
     update(time, dt) {
-        this.camera.camera.update(dt);
+        this.camera.update(dt);
         this.physics.update(dt);
     }
 
     render() {
-        this.renderer.render(this.scene, this.camera.camera);
+        this.renderer.render(this.scene, this.camera);
     }
 
     resize(width, height) {
         this.camera.aspect = width / height;
-        this.camera.camera.updateProjection();
+        this.camera.updateProjectionMatrix();
     }
 
 }

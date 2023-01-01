@@ -29,7 +29,17 @@ export class Renderer {
         });
 
     }
-
+    prepare(scene) {
+        scene.nodes.forEach(node => {
+            node.gl = {};
+            if (node.mesh) {
+                Object.assign(node.gl, this.createModel(node.mesh));
+            }
+            if (node.image) {
+                node.gl.texture = this.createTexture(node.image);
+            }
+        });
+    }
     prepareBufferView(bufferView) {
         if (this.glObjects.has(bufferView)) {
             return this.glObjects.get(bufferView);
@@ -190,7 +200,7 @@ export class Renderer {
     }
 
     getViewProjectionMatrix(camera) {
-        const vpMatrix = camera.getGlobalMatrix();
+        const vpMatrix = camera.globalMatrix;
         mat4.invert(vpMatrix, vpMatrix);
         mat4.mul(vpMatrix, camera.projectionMatrix, vpMatrix);
         return vpMatrix;
@@ -204,37 +214,11 @@ export class Renderer {
         const { program, uniforms } = this.programs.simple;
         gl.useProgram(program);
 
-        const matrix = mat4.create();
-        const matrixStack = [];
-
         
         const mvpMatrix = this.getViewProjectionMatrix(camera);
         for (const node of scene.nodes) {
             this.renderNode(node, mvpMatrix);
         }
-
-        // const viewMatrix = camera.getGlobalMatrix();
-        // mat4.invert(viewMatrix, viewMatrix);
-        // mat4.copy(matrix, viewMatrix);
-        // gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, camera.projectionMatrix);
-
-        // scene.traverse(
-        //     node => {
-        //         matrixStack.push(mat4.clone(matrix));
-        //         mat4.mul(matrix, matrix, node.localMatrix);
-        //         if (node.gl.vao) {
-        //             gl.bindVertexArray(node.gl.vao);
-        //             gl.uniformMatrix4fv(uniforms.uViewModelMatrix, false, matrix);
-        //             gl.activeTexture(gl.TEXTURE0);
-        //             gl.bindTexture(gl.TEXTURE_2D, node.gl.texture);
-        //             gl.uniform1i(uniforms.uTexture, 0);
-        //             gl.drawElements(gl.TRIANGLES, node.gl.indices, gl.UNSIGNED_SHORT, 0);
-        //         }
-        //     },
-        //     node => {
-        //         mat4.copy(matrix, matrixStack.pop());
-        //     }
-        // );
 
     }
 
@@ -251,6 +235,15 @@ export class Renderer {
             for (const primitive of node.mesh.primitives) {
                 this.renderPrimitive(primitive);
             }
+        }
+
+        if (this.gl.vao) {
+            gl.bindVertexArray(node.gl.vao);
+            gl.uniformMatrix4fv(uniforms.uViewModelMatrix, false, matrix);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, node.gl.texture);
+            gl.uniform1i(uniforms.uTexture, 0);
+            gl.drawElements(gl.TRIANGLES, node.gl.indices, gl.UNSIGNED_SHORT, 0);
         }
 
         for (const child of node.children) {

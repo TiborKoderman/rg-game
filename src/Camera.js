@@ -1,7 +1,7 @@
 import { vec3, mat4 } from '../lib/gl-matrix-module.js';
 
 import { Utils } from './Utils.js';
-import { Node } from './Node.js';
+import { Node } from '../common/engine/Node.js';
 
 export class Camera extends Node {
 
@@ -36,7 +36,10 @@ export class Camera extends Node {
         // 1: add movement acceleration
         const acc = vec3.create();
         if (this.keys['KeyW']) {
+            // console.log('KeyW');
             vec3.add(acc, acc, forward);
+            // console.log(acc);
+            console.log(this);
         }
         if (this.keys['KeyS']) {
             vec3.sub(acc, acc, forward);
