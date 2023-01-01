@@ -202,7 +202,7 @@ export class Renderer {
     getViewProjectionMatrix(scene, camera) {
         const vpMatrix = camera.globalMatrix;
         mat4.invert(vpMatrix, vpMatrix);
-        mat4.mul(vpMatrix, camera.projectionMatrix, vpMatrix);
+        mat4.mul(vpMatrix, camera.camera.projectionMatrix, vpMatrix);
         return vpMatrix;
     }
 

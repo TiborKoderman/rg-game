@@ -23,14 +23,13 @@ class App extends Application {
         this.gl.canvas.addEventListener('click', e => this.gl.canvas.requestPointerLock());
         document.addEventListener('pointerlockchange', e => {
             if (document.pointerLockElement === this.gl.canvas) {
-                this.camera.enable();
+                this.camera.camera.enable();
             } else {
-                this.camera.disable();
+                this.camera.camera.disable();
             }
         });
 
-
-
+        this.renderer.prepareScene(this.scene);
     }
 
     async load(uri) {
@@ -38,7 +37,7 @@ class App extends Application {
         await this.loader.load(uri);
 
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
-        this.camera = await this.loader.loadCamera('Camera');
+        this.camera = await this.loader.loadNode('Camera');
 
         this.physics = new Physics(this.scene);
 
@@ -51,15 +50,10 @@ class App extends Application {
             throw new Error('Camera node does not contain a camera reference');
         }
 
-
-        this.camera.aspect = this.aspect;
-        this.camera.updateProjection();
-        this.renderer.prepareScene(this.scene);
-
     }
 
     update(time, dt) {
-        this.camera.update(dt);
+        this.camera.camera.update(dt);
         this.physics.update(dt);
     }
 
@@ -68,8 +62,8 @@ class App extends Application {
     }
 
     resize(width, height) {
-        this.camera.aspect = width / height;
-        this.camera.updateProjectionMatrix();
+        this.camera.camera.aspect = width / height;
+        this.camera.camera.updateProjectionMatrix();
     }
 
 }
