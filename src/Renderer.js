@@ -203,6 +203,7 @@ export class Renderer {
         const vpMatrix = camera.globalMatrix;
         mat4.invert(vpMatrix, vpMatrix);
         mat4.mul(vpMatrix, camera.projectionMatrix, vpMatrix);
+        mat4.mul(vpMatrix, camera.globalMatrix, vpMatrix)
         return vpMatrix;
     }
 
@@ -214,13 +215,12 @@ export class Renderer {
         const { program, uniforms } = this.programs.simple;
         gl.useProgram(program);
 
-        
         const mvpMatrix = this.getViewProjectionMatrix(camera);
         for (const node of scene.nodes) {
             this.renderNode(node, mvpMatrix);
         }
-
     }
+
 
     renderNode(node, mvpMatrix) {
         const gl = this.gl;
@@ -235,15 +235,6 @@ export class Renderer {
             for (const primitive of node.mesh.primitives) {
                 this.renderPrimitive(primitive);
             }
-        }
-
-        if (this.gl.vao) {
-            gl.bindVertexArray(node.gl.vao);
-            gl.uniformMatrix4fv(uniforms.uViewModelMatrix, false, matrix);
-            gl.activeTexture(gl.TEXTURE0);
-            gl.bindTexture(gl.TEXTURE_2D, node.gl.texture);
-            gl.uniform1i(uniforms.uTexture, 0);
-            gl.drawElements(gl.TRIANGLES, node.gl.indices, gl.UNSIGNED_SHORT, 0);
         }
 
         for (const child of node.children) {

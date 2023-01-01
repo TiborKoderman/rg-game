@@ -4,7 +4,6 @@ layout (location = 0) in vec4 aPosition;
 layout (location = 3) in vec2 aTexCoord;
 
 uniform mat4 uModelViewProjection;
-uniform mat4 uProjectionMatrix;
 
 out vec2 vTexCoord;
 
