@@ -14,7 +14,8 @@ class App extends Application {
         
         this.renderer = new Renderer(this.gl);
 
-        await this.load('../common/models/rocks/rocks.gltf')
+        // await this.load('../common/models/rocks/rocks.gltf')
+        await this.load('../assets/models/room/room.gltf')
         
         // this.physics = new Physics(this.scene);
 
@@ -50,11 +51,13 @@ class App extends Application {
             throw new Error('Camera node does not contain a camera reference');
         }
 
+        this.camera.camera.updateProjection();
+
     }
 
     update(time, dt) {
-        this.camera.camera.update(dt);
         this.physics.update(dt);
+        this.camera.camera.update(dt);
     }
 
     render() {
@@ -63,7 +66,7 @@ class App extends Application {
 
     resize(width, height) {
         this.camera.camera.aspect = width / height;
-        this.camera.camera.updateProjectionMatrix();
+        this.camera.camera.updateProjection();
     }
 
 }

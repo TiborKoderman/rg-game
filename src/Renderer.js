@@ -215,6 +215,13 @@ export class Renderer {
         gl.useProgram(program);
 
         const mvpMatrix = this.getViewProjectionMatrix(scene, camera);
+        const viewMatrix = camera.globalMatrix;
+        const matrix = mat4.create();
+
+        mat4.invert(viewMatrix, viewMatrix);
+        mat4.copy(matrix, viewMatrix);
+        gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, camera.camera.projectionMatrix);
+        
 
 
         for (const node of scene.nodes) {
