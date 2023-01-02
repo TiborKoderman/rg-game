@@ -6,6 +6,8 @@ import { Camera } from "./Camera.js";
 import { SceneLoader } from "./SceneLoader.js";
 import { SceneBuilder } from "./SceneBuilder.js";
 import { GLTFLoader } from "./GLTFLoader.js";
+import { FirstPersonController } from "./FirstPersonController.js";
+
 
 class App extends Application {
 
@@ -20,6 +22,8 @@ class App extends Application {
         // this.physics = new Physics(this.scene);
 
         // this.renderer.prepareScene(this.scene);
+
+        this.controller = new FirstPersonController(this.camera, this.gl.canvas);
         
         this.gl.canvas.addEventListener('click', e => this.gl.canvas.requestPointerLock());
         document.addEventListener('pointerlockchange', e => {
@@ -57,6 +61,7 @@ class App extends Application {
 
     update(time, dt) {
         this.physics.update(dt);
+        this.controller.update(dt);
         this.camera.camera.update(dt);
     }
 
