@@ -3,6 +3,10 @@ import { vec3, vec4 } from '../lib/gl-matrix-module.js';
 export class Material {
 
     constructor(options = {}) {
+        this.texture = null;
+        this.diffuse = 1;
+        this.specular = 1;
+        this.shininess = 50;
         this.baseColorTexture = options.baseColorTexture ?? null;
         this.baseColorTexCoord = options.baseColorTexCoord ?? 0;
         this.baseColorFactor = options.baseColorFactor

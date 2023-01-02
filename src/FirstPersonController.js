@@ -102,6 +102,13 @@ export class FirstPersonController {
         if (this.keys['KeyA']) {
             vec3.sub(acc, acc, right);
         }
+        if(this.keys['ShiftLeft']){
+            console.log("shift");
+            this.maxSpeed = 12;
+        }
+        else{
+            this.maxSpeed = 3;
+        }
 
         // Update velocity based on acceleration (first line of Euler's method).
         vec3.scaleAndAdd(this.velocity, this.velocity, acc, dt * this.acceleration);
