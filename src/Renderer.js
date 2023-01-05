@@ -1,4 +1,4 @@
-import { mat4 } from '../lib/gl-matrix-module.js';
+import { vec3, mat4 } from '../lib/gl-matrix-module.js';
 
 import { WebGL } from '../common/engine/WebGL.js';
 
@@ -200,7 +200,7 @@ export class Renderer {
     }
 
 
-    render(scene, camera) {
+    render(scene, camera, light) {
         const gl = this.gl;
 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -215,6 +215,12 @@ export class Renderer {
 
         mat4.mul(mvpMatrix, mvpMatrix, camera.projectionMatrix);
         mat4.mul(mvpMatrix, mvpMatrix, viewMatrix);
+
+
+        gl.uniform3fv(uniforms.uLightColor, vec3.scale(vec3.create(), light.light.color, light.light.intensity));
+        gl.uniform3fv(uniforms.uLightPosition, mat4.getTranslation(vec3.create(), light.globalMatrix));
+        gl.uniform3fv(uniforms.uLightAttenuation, light.light.attenuation);
+        gl.uniform1f(uniforms.uLightAmbient, light.light.ambient);
 
 
 

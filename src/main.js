@@ -37,6 +37,7 @@ class App extends Application {
 
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
         this.camera = await this.loader.loadNode('Camera');
+        this.light = await this.loader.loadNode('Light');
 
         // console.log(this.camera);
         console.log(this.scene);
@@ -62,7 +63,7 @@ class App extends Application {
     }
 
     render() {
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.scene, this.camera, this.light);
     }
 
     resize(width, height) {
