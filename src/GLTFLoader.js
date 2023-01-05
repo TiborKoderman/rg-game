@@ -11,6 +11,10 @@ import { Scene } from './Scene.js';
 
 import { FirstPersonController } from './FirstPersonController.js';
 
+import { PointLight } from './PointLight.js';
+import { DirectionalLight } from './DirectionalLight.js';
+import { SpotLight } from './SpotLight.js';
+
 import { Node } from '../common/engine/Node.js';
 
 // This class loads all GLTF resources and instantiates
@@ -302,6 +306,43 @@ export class GLTFLoader {
         }
     }
 
+    async loadLight(nameOrIndex) {
+        console.log(this.gltf.extensions.KHR_lights_punctual.lights);
+        const gltfSpec = this.findByNameOrIndex(this.gltf.extensions.KHR_lights_punctual.lights, nameOrIndex);
+        if (!gltfSpec) {
+            return null;
+        }
+        if (this.cache.has(gltfSpec)) {
+            return this.cache.get(gltfSpec);
+        }
+
+        const options = {};
+        if (gltfSpec.color !== undefined) {
+            options.color = gltfSpec.color;
+        }
+        if (gltfSpec.intensity !== undefined) {
+            options.intensity = gltfSpec.intensity;
+        }
+        if (gltfSpec.range !== undefined) {
+            options.range = gltfSpec.range;
+        }
+        if (gltfSpec.spot !== undefined) {
+            options.innerConeAngle = gltfSpec.spot.innerConeAngle;
+            options.outerConeAngle = gltfSpec.spot.outerConeAngle;
+        }
+
+        var light;
+        if (gltfSpec.type === 'directional') {
+            light = new DirectionalLight(options);
+        } else if (gltfSpec.type === 'point') {
+            light = new PointLight(options);
+        } else if (gltfSpec.type === 'spot') {
+            light = new SpotLight(options);
+        }
+        this.cache.set(gltfSpec, light);
+        return light;
+    }
+
     async loadNode(nameOrIndex) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.nodes, nameOrIndex);
         if (!gltfSpec) {
@@ -310,6 +351,8 @@ export class GLTFLoader {
         if (this.cache.has(gltfSpec)) {
             return this.cache.get(gltfSpec);
         }
+
+        // console.log(gltfSpec.extensions.KHR_lights_punctual.light);
 
         const options = { ...gltfSpec, children: [] };
         if (gltfSpec.children) {
@@ -321,6 +364,12 @@ export class GLTFLoader {
         if (gltfSpec.mesh !== undefined) {
             options.mesh = await this.loadMesh(gltfSpec.mesh);
         }
+        if (gltfSpec?.extensions?.KHR_lights_punctual?.light !== undefined) {
+            console.log("loading light");
+            options.light = await this.loadLight(nameOrIndex);
+
+        }
+
         var node;
         if (gltfSpec.camera !== undefined) {
             options.camera = await this.loadCamera(gltfSpec.camera);

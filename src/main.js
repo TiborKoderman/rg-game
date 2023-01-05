@@ -38,7 +38,7 @@ class App extends Application {
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
         this.camera = await this.loader.loadNode('Camera');
 
-        console.log(this.camera);
+        // console.log(this.camera);
         console.log(this.scene);
 
         
