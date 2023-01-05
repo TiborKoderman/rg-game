@@ -12,7 +12,7 @@ export class FirstPersonController extends Node {
     this.updateProjection();
 
     this.pitch = 0;
-    this.yaw = 1.5 * Math.PI;
+    this.yaw = this.rotation[1] * Math.PI / 180 - Math.PI/2;
 
     this.pointermoveHandler = this.pointermoveHandler.bind(this);
     this.keydownHandler = this.keydownHandler.bind(this);
