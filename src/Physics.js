@@ -8,12 +8,12 @@ export class Physics {
 
     update(dt) {
         this.scene.traverse(node => {
-            // Move every node with defined velocity.
+            
             if (node.velocity) {
-                vec3.scaleAndAdd(node.translation, node.translation, node.velocity, dt);
-                node.updateMatrix();
+                vec3.scaleAndAdd(node._translation, node.translation, node.velocity, dt);
+                // console.log(node.velocity);
+                // node.updateTransformationMatrix()
 
-                // After moving, check for collision with every other node.
                 this.scene.traverse(other => {
                     if (node !== other) {
                         this.resolveCollision(node, other);
@@ -21,6 +21,7 @@ export class Physics {
                 });
             }
         });
+
     }
 
     intervalIntersection(min1, max1, min2, max2) {
@@ -35,7 +36,8 @@ export class Physics {
 
     getTransformedAABB(node) {
         // Transform all vertices of the AABB from local to global space.
-        const transform = node.getGlobalMatrix();
+        const transform = node.globalMatrix;
+        // console.log(node);
         const { min, max } = node.aabb;
         const vertices = [
             [min[0], min[1], min[2]],
@@ -99,8 +101,8 @@ export class Physics {
             minDirection = [0, 0, -minDiff];
         }
 
-        vec3.add(a.translation, a.translation, minDirection);
-        a.updateMatrix();
+        vec3.add(a._translation, a._translation, minDirection);
+        a.updateTransformationMatrix()
     }
 
 }

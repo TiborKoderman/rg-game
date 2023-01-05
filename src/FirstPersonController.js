@@ -1,174 +1,150 @@
-import { quat, vec3, mat4 } from '../lib/gl-matrix-module.js';
+import { quat, vec3, mat4 } from "../lib/gl-matrix-module.js";
+import { Utils } from "./Utils.js";
+import { Node } from "../common/engine/Node.js";
 
-export class FirstPersonController {
+export class FirstPersonController extends Node {
+  constructor(options) {
+    super(options);
+    Utils.init(this, this.constructor.defaults, options);
+    Utils.init(this, FirstPersonController.defaults, options);
 
-    constructor(node, domElement) {
-        // The node that this controller controls.
-        this.node = node;
+    this.projectionMatrix = mat4.create();
+    this.updateProjection();
 
-        // The activation DOM element.
-        this.domElement = domElement;
+    this.pitch = 0;
+    this.yaw = 0;
 
-        // This map is going to hold the pressed state for every key.
-        this.keys = {};
+    this.pointermoveHandler = this.pointermoveHandler.bind(this);
+    this.keydownHandler = this.keydownHandler.bind(this);
+    this.keyupHandler = this.keyupHandler.bind(this);
+    this.keys = {};
+    // console.log("global matrix", this.globalMatrix);
+  }
 
-        // We are going to use Euler angles for rotation.
-        this.pitch = 0;
-        this.yaw = 0;
 
-        // This is going to be a simple decay-based model, where
-        // the user input is used as acceleration. The acceleration
-        // is used to update velocity, which is in turn used to update
-        // translation. If there is no user input, speed will decay.
-        this.velocity = [0, 0, 0];
 
-        // The model needs some limits and parameters.
+  updateProjection() {
+    mat4.perspective(
+      this.projectionMatrix,
+      this.fov,
+      this.aspect,
+      this.near,
+      this.far
+    );
+  }
 
-        // Acceleration in meters per second squared.
-        this.acceleration = 20;
+  update(dt) {
+    const c = this;
 
-        // Maximum speed in meters per second.
-        this.maxSpeed = 3;
+    const cos = Math.cos(this.yaw);
+    const sin = Math.sin(this.yaw);
+    const forward = [-sin, 0, -cos];
+    const right = [cos, 0, -sin];
 
-        // Decay as 1 - log percent max speed loss per second.
-        this.decay = 0.9;
+    // 1: add movement acceleration
+    const acc = vec3.create();
+    if (this.keys["KeyW"]) {
+      vec3.add(acc, acc, forward);
+    }
+    if (this.keys["KeyS"]) {
+      vec3.sub(acc, acc, forward);
+    }
+    if (this.keys["KeyD"]) {
+      vec3.add(acc, acc, right);
+    }
+    if (this.keys["KeyA"]) {
+      vec3.sub(acc, acc, right);
+    }
+    if(this.keys["ShiftLeft"]){
+      this.maxSpeed = this.sprintSpeed;
+    }
+    else
+      this.maxSpeed = this.walkSpeed;
 
-        // Pointer sensitivity in radians per pixel.
-        this.pointerSensitivity = 0.002;
-
-        this.initHandlers();
+    // 2: update velocity
+    // console.log("acc", acc);
+    vec3.scaleAndAdd(c.velocity, c.velocity, acc, dt * c.acceleration);
+    // console.log("velocity", c.velocity);
+    // 3: if no movement, apply friction
+    if (
+      !this.keys["KeyW"] &&
+      !this.keys["KeyS"] &&
+      !this.keys["KeyD"] &&
+      !this.keys["KeyA"]
+    ) {
+      if (vec3.len(c.velocity) < 0.01) 
+        c.velocity = [0,0,0];
+      vec3.scale(c.velocity, c.velocity, 1 - c.friction);
     }
 
-    initHandlers() {
-        this.pointermoveHandler = this.pointermoveHandler.bind(this);
-        this.keydownHandler = this.keydownHandler.bind(this);
-        this.keyupHandler = this.keyupHandler.bind(this);
-
-        const element = this.domElement;
-        const doc = element.ownerDocument;
-
-        doc.addEventListener('keydown', this.keydownHandler);
-        doc.addEventListener('keyup', this.keyupHandler);
-
-        element.addEventListener('click', e => element.requestPointerLock());
-        doc.addEventListener('pointerlockchange', e => {
-            if (doc.pointerLockElement === element) {
-                doc.addEventListener('pointermove', this.pointermoveHandler);
-            } else {
-                doc.removeEventListener('pointermove', this.pointermoveHandler);
-            }
-        });
+    // 4: limit speed
+    const len = vec3.len(c.velocity);
+    if (len > c.maxSpeed) {
+      vec3.scale(c.velocity, c.velocity, c.maxSpeed / len);
     }
 
-    update(dt) {
-        // We are essentially solving the system of differential equations
-        //
-        //   a = dv/dt
-        //   v = dx/dt
-        //
-        // where a is acceleration, v is speed and x is translation.
-        // The system can be sufficiently solved with Euler's method:
-        //
-        //   v(t + dt) = v(t) + a(t) * dt
-        //   x(t + dt) = x(t) + v(t) * dt
-        //
-        // which can be implemented as
-        //
-        //   v += a * dt
-        //   x += v * dt
-        //
-        // Needless to say, better methods exist. Specifically, second order
-        // methods accurately compute the solution to our second order system,
-        // whereas there is always going to be some error related to the
-        // exponential decay.
+    // this.translation = vec3.scaleAndAdd(vec3.create(),
+    //         this.translation, this.velocity, dt);
 
-        // Calculate forward and right vectors from the y-orientation.
-        const cos = Math.cos(this.yaw);
-        const sin = Math.sin(this.yaw);
-        const forward = [-sin, 0, -cos];
-        const right = [cos, 0, -sin];
+    const rotation = quat.create();
+    quat.rotateY(rotation, rotation, this.yaw);
+    quat.rotateX(rotation, rotation, this.pitch);
+    this.rotation = rotation;
 
-        // Map user input to the acceleration vector.
-        const acc = vec3.create();
-        if (this.keys['KeyW']) {
-            vec3.add(acc, acc, forward);
-        }
-        if (this.keys['KeyS']) {
-            vec3.sub(acc, acc, forward);
-        }
-        if (this.keys['KeyD']) {
-            vec3.add(acc, acc, right);
-        }
-        if (this.keys['KeyA']) {
-            vec3.sub(acc, acc, right);
-        }
-        if(this.keys['ShiftLeft']){
-            console.log("shift");
-            this.maxSpeed = 12;
-        }
-        else{
-            this.maxSpeed = 3;
-        }
+  }
 
-        // Update velocity based on acceleration (first line of Euler's method).
-        vec3.scaleAndAdd(this.velocity, this.velocity, acc, dt * this.acceleration);
+  enable() {
+    document.addEventListener("pointermove", this.pointermoveHandler);
+    document.addEventListener("keydown", this.keydownHandler);
+    document.addEventListener("keyup", this.keyupHandler);
+  }
 
-        // If there is no user input, apply decay.
-        if (!this.keys['KeyW'] &&
-            !this.keys['KeyS'] &&
-            !this.keys['KeyD'] &&
-            !this.keys['KeyA'])
-        {
-            const decay = Math.exp(dt * Math.log(1 - this.decay));
-            vec3.scale(this.velocity, this.velocity, decay);
-        }
+  disable() {
+    document.removeEventListener("pointermove", this.pointermoveHandler);
+    document.removeEventListener("keydown", this.keydownHandler);
+    document.removeEventListener("keyup", this.keyupHandler);
 
-        // Limit speed to prevent accelerating to infinity and beyond.
-        const speed = vec3.length(this.velocity);
-        if (speed > this.maxSpeed) {
-            vec3.scale(this.velocity, this.velocity, this.maxSpeed / speed);
-        }
-
-        // Update translation based on velocity (second line of Euler's method).
-        this.node.translation = vec3.scaleAndAdd(vec3.create(),
-            this.node.translation, this.velocity, dt);
-
-        // Update rotation based on the Euler angles.
-        const rotation = quat.create();
-        quat.rotateY(rotation, rotation, this.yaw);
-        quat.rotateX(rotation, rotation, this.pitch);
-        this.node.rotation = rotation;
+    for (const key in this.keys) {
+      this.keys[key] = false;
     }
+  }
 
-    pointermoveHandler(e) {
-        // Rotation can be updated through the pointermove handler.
-        // Given that pointermove is only called under pointer lock,
-        // movementX/Y will be available.
+  pointermoveHandler(e) {
+    const dx = e.movementX;
+    const dy = e.movementY;
 
-        // Horizontal pointer movement causes camera panning (y-rotation),
-        // vertical pointer movement causes camera tilting (x-rotation).
-        const dx = e.movementX;
-        const dy = e.movementY;
+    this.pitch -= dy * this.pointerSensitivity;
+    this.yaw   -= dx * this.pointerSensitivity;
 
-        this.pitch -= dy * this.pointerSensitivity;
-        this.yaw   -= dx * this.pointerSensitivity;
+    const twopi = Math.PI * 2;
+    const halfpi = Math.PI / 2;
 
-        const twopi = Math.PI * 2;
-        const halfpi = Math.PI / 2;
+    // Limit pitch so that the camera does not invert on itself.
+    this.pitch = Math.min(Math.max(this.pitch, -halfpi), halfpi);
 
-        // Limit pitch so that the camera does not invert on itself.
-        this.pitch = Math.min(Math.max(this.pitch, -halfpi), halfpi);
+    // Constrain yaw to the range [0, pi * 2]
+    this.yaw = ((this.yaw % twopi) + twopi) % twopi;
+  }
 
-        // Constrain yaw to the range [0, pi * 2]
-        this.yaw = ((this.yaw % twopi) + twopi) % twopi;
-    }
+  keydownHandler(e) {
+    this.keys[e.code] = true;
+  }
 
-    keydownHandler(e) {
-        this.keys[e.code] = true;
-    }
-
-    keyupHandler(e) {
-        this.keys[e.code] = false;
-    }
-
+  keyupHandler(e) {
+    this.keys[e.code] = false;
+  }
 }
+
+FirstPersonController.defaults = {
+  aspect: 1,
+  fov: 1.1,
+  near: 0.01,
+  far: 100,
+  velocity: [0, 0, 0],
+  pointerSensitivity: 0.002,
+  maxSpeed: 3,
+  walkSpeed: 3,
+  sprintSpeed: 8,
+  friction: 0.2,
+  acceleration: 20,
+};

@@ -3,10 +3,8 @@ import { Application } from "../common/engine/Application.js";
 import { Renderer } from "./Renderer.js";
 import { Physics } from "./Physics.js";
 import { Camera } from "./Camera.js";
-import { SceneLoader } from "./SceneLoader.js";
-import { SceneBuilder } from "./SceneBuilder.js";
 import { GLTFLoader } from "./GLTFLoader.js";
-import { FirstPersonController } from "./FirstPersonController.js";
+import { FirstPersonController } from "../common/engine/FirstPersonController.js";
 
 
 class App extends Application {
@@ -18,23 +16,19 @@ class App extends Application {
 
         // await this.load('../common/models/rocks/rocks.gltf')
         await this.load('../assets/models/room/room.gltf')
-        
-        // this.physics = new Physics(this.scene);
 
-        // this.renderer.prepareScene(this.scene);
-
-        this.controller = new FirstPersonController(this.camera, this.gl.canvas);
         
         this.gl.canvas.addEventListener('click', e => this.gl.canvas.requestPointerLock());
         document.addEventListener('pointerlockchange', e => {
             if (document.pointerLockElement === this.gl.canvas) {
-                this.camera.camera.enable();
+                this.camera.enable();
             } else {
-                this.camera.camera.disable();
+                this.camera.disable();
             }
         });
 
-        this.renderer.prepareScene(this.scene);
+        this.physics = new Physics(this.scene);
+
     }
 
     async load(uri) {
@@ -44,25 +38,27 @@ class App extends Application {
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
         this.camera = await this.loader.loadNode('Camera');
 
-        this.physics = new Physics(this.scene);
+        console.log(this.camera);
+        console.log(this.scene);
 
-
+        
+        
         if (!this.scene || !this.camera) {
             throw new Error('Scene or Camera not present in glTF');
         }
-
+        
         if (!this.camera) {
             throw new Error('Camera node does not contain a camera reference');
         }
-
-        this.camera.camera.updateProjection();
+        
+        this.camera.updateProjection();
+        this.renderer.prepareScene(this.scene);
 
     }
 
     update(time, dt) {
+        this.camera.update(dt);
         this.physics.update(dt);
-        this.controller.update(dt);
-        this.camera.camera.update(dt);
     }
 
     render() {
@@ -70,8 +66,8 @@ class App extends Application {
     }
 
     resize(width, height) {
-        this.camera.camera.aspect = width / height;
-        this.camera.camera.updateProjection();
+        this.camera.aspect = width / height;
+        this.camera.updateProjection();
     }
 
 }

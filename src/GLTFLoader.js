@@ -9,6 +9,8 @@ import { PerspectiveCamera } from './PerspectiveCamera.js';
 import { OrthographicCamera } from './OrthographicCamera.js';
 import { Scene } from './Scene.js';
 
+import { FirstPersonController } from './FirstPersonController.js';
+
 import { Node } from '../common/engine/Node.js';
 
 // This class loads all GLTF resources and instantiates
@@ -267,6 +269,7 @@ export class GLTFLoader {
 
     async loadCamera(nameOrIndex) {
         const gltfSpec = this.findByNameOrIndex(this.gltf.cameras, nameOrIndex);
+        // const velocity = [0, 0, 0]
         if (!gltfSpec) {
             return null;
         }
@@ -315,14 +318,17 @@ export class GLTFLoader {
                 options.children.push(node);
             }
         }
-        if (gltfSpec.camera !== undefined) {
-            options.camera = await this.loadCamera(gltfSpec.camera);
-        }
         if (gltfSpec.mesh !== undefined) {
             options.mesh = await this.loadMesh(gltfSpec.mesh);
         }
-
-        const node = new Node(options);
+        var node;
+        if (gltfSpec.camera !== undefined) {
+            options.camera = await this.loadCamera(gltfSpec.camera);
+            node = new FirstPersonController(options);
+        }
+        else {
+            node = new Node(options);
+        }
         this.cache.set(gltfSpec, node);
         return node;
     }
@@ -341,6 +347,10 @@ export class GLTFLoader {
             for (const nodeIndex of gltfSpec.nodes) {
                 const node = await this.loadNode(nodeIndex);
                 options.nodes.push(node);
+
+                if (node.camera) {
+                    options.camera = node;
+                }
             }
         }
 

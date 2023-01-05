@@ -199,12 +199,6 @@ export class Renderer {
         });
     }
 
-    getViewProjectionMatrix(scene, camera) {
-        const vpMatrix = camera.globalMatrix;
-        mat4.invert(vpMatrix, vpMatrix);
-        mat4.mul(vpMatrix, camera.camera.projectionMatrix, vpMatrix);
-        return vpMatrix;
-    }
 
     render(scene, camera) {
         const gl = this.gl;
@@ -214,21 +208,20 @@ export class Renderer {
         const { program, uniforms } = this.programs.simple;
         gl.useProgram(program);
 
-        const mvpMatrix = this.getViewProjectionMatrix(scene, camera);
         const viewMatrix = camera.globalMatrix;
-        const matrix = mat4.create();
-
         mat4.invert(viewMatrix, viewMatrix);
-        mat4.copy(matrix, viewMatrix);
-        gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, camera.camera.projectionMatrix);
-        
+
+        const mvpMatrix = mat4.create();
+
+        mat4.mul(mvpMatrix, mvpMatrix, camera.projectionMatrix);
+        mat4.mul(mvpMatrix, mvpMatrix, viewMatrix);
+
 
 
         for (const node of scene.nodes) {
             this.renderNode(node, mvpMatrix);
         }
 
-        // this.renderNode(scene, mvpMatrix);
     }
 
 
@@ -240,6 +233,8 @@ export class Renderer {
 
         mvpMatrix = mat4.clone(mvpMatrix);
         mat4.mul(mvpMatrix, mvpMatrix, node.localMatrix);
+
+        // gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, this.projectionMatrix);
 
         if (node.mesh) {
             gl.uniformMatrix4fv(uniforms.uModelViewProjection, false, mvpMatrix);

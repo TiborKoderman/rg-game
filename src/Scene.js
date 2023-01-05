@@ -1,8 +1,9 @@
 import { Node } from '../common/engine/Node.js';
 
-export class Scene {
+export class Scene extends Node {
 
     constructor(options = {}) {
+        super(options);
         this.nodes = [...(options.nodes ?? [])];
     }
 
