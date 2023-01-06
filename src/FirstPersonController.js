@@ -14,6 +14,8 @@ export class FirstPersonController extends Node {
     this.pitch = 0;
     this.yaw = this.rotation[1] * Math.PI / 180 - Math.PI/2;
 
+    this.aiborne = false;
+
     this.pointermoveHandler = this.pointermoveHandler.bind(this);
     this.keydownHandler = this.keydownHandler.bind(this);
     this.keyupHandler = this.keyupHandler.bind(this);
@@ -61,30 +63,48 @@ export class FirstPersonController extends Node {
     else
       this.maxSpeed = this.walkSpeed;
 
+
     // 2: update velocity
     // console.log("acc", acc);
     vec3.scaleAndAdd(c.velocity, c.velocity, acc, dt * c.acceleration);
     // console.log("velocity", c.velocity);
     // 3: if no movement, apply friction
     if (
-      !this.keys["KeyW"] &&
+      (!this.keys["KeyW"] &&
       !this.keys["KeyS"] &&
       !this.keys["KeyD"] &&
-      !this.keys["KeyA"]
+      !this.keys["KeyA"])
     ) {
       if (vec3.len(c.velocity) < 0.01) 
         c.velocity = [0,0,0];
       vec3.scale(c.velocity, c.velocity, 1 - c.friction);
+
     }
 
     // 4: limit speed
-    const len = vec3.len(c.velocity);
-    if (len > c.maxSpeed) {
-      vec3.scale(c.velocity, c.velocity, c.maxSpeed / len);
+    const speed = vec3.length(this.velocity);
+    if (speed > this.maxSpeed + this.velocity[1]) {
+        vec3.scale(this.velocity, this.velocity, this.maxSpeed / speed);
     }
 
-    // this.translation = vec3.scaleAndAdd(vec3.create(),
-    //         this.translation, this.velocity, dt);
+
+    if(this.keys["Space"] && !this.aiborne){
+      this.velocity[1] = this.jumpSpeed;
+      this.aiborne = true;
+    }
+    else{
+      this.velocity[1] -= this.gravity * dt;
+    }
+
+    if(this.translation[1] < 2.5){
+      this.translation[1] = 2;
+      this.aiborne = false;
+    }
+
+    console.log("velocity", this.velocity);
+
+
+
 
     const rotation = quat.create();
     quat.rotateY(rotation, rotation, this.yaw);
@@ -147,4 +167,6 @@ FirstPersonController.defaults = {
   sprintSpeed: 8,
   friction: 0.2,
   acceleration: 20,
+  jumpSpeed: 4,
+  gravity: 9.8,
 };
