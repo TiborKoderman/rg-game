@@ -20,6 +20,8 @@ export class FirstPersonController extends Node {
     this.keydownHandler = this.keydownHandler.bind(this);
     this.keyupHandler = this.keyupHandler.bind(this);
     this.keys = {};
+
+    this.translation1secondAgo = this.translation;
     // console.log("global matrix", this.globalMatrix);
   }
 
@@ -35,7 +37,7 @@ export class FirstPersonController extends Node {
     );
   }
 
-  update(dt) {
+  update(dt, time) {
     const c = this;
 
     const cos = Math.cos(this.yaw);
@@ -88,6 +90,12 @@ export class FirstPersonController extends Node {
 
       if(Math.abs(c.velocity[1]) < 0.01)
         c.velocity[1] = 0;
+
+    }
+    else{
+      // walking animation screen shake
+      
+
 
     }
 

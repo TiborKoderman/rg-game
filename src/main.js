@@ -38,7 +38,9 @@ class App extends Application {
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
         this.camera = await this.loader.loadNode('Camera');
         this.light = await this.loader.loadNode('Light');
+        this.enemy = await this.loader.loadNode('Enemy');
 
+        console.log(this.enemy);
         // console.log(this.camera);
         console.log(this.scene);
 
@@ -58,7 +60,8 @@ class App extends Application {
     }
 
     update(time, dt) {
-        this.camera.update(dt);
+        this.camera.update(dt, time);
+        this.enemy.update(dt, this.camera, time);
         this.physics.update(dt);
     }
 

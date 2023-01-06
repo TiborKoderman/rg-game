@@ -10,6 +10,7 @@ import { OrthographicCamera } from './OrthographicCamera.js';
 import { Scene } from './Scene.js';
 
 import { FirstPersonController } from './FirstPersonController.js';
+import { Enemy } from './Enemy.js';
 
 import { PointLight } from './PointLight.js';
 import { DirectionalLight } from './DirectionalLight.js';
@@ -365,7 +366,7 @@ export class GLTFLoader {
             options.mesh = await this.loadMesh(gltfSpec.mesh);
         }
         if (gltfSpec?.extensions?.KHR_lights_punctual?.light !== undefined) {
-            console.log("loading light");
+            // console.log("loading light");
             options.light = await this.loadLight(nameOrIndex);
 
         }
@@ -374,6 +375,9 @@ export class GLTFLoader {
         if (gltfSpec.camera !== undefined) {
             options.camera = await this.loadCamera(gltfSpec.camera);
             node = new FirstPersonController(options);
+        }
+        else if (gltfSpec.name === 'Enemy') {
+            node = new Enemy(options);
         }
         else {
             node = new Node(options);
