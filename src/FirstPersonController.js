@@ -117,7 +117,7 @@ export class FirstPersonController extends Node {
       this.aiborne = false;
     }
 
-    console.log("velocity", this.velocity);
+    // console.log("velocity", this.velocity);
 
 
 

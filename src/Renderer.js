@@ -211,23 +211,29 @@ export class Renderer {
         const viewMatrix = camera.globalMatrix;
         mat4.invert(viewMatrix, viewMatrix);
 
-        const mvpMatrix = mat4.create();
+        gl.uniformMatrix4fv(uniforms.uViewMatrix, false, viewMatrix);
+        gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, camera.projectionMatrix);
+        gl.uniform3fv(uniforms.uCameraPosition, mat4.getTranslation(vec3.create(), camera.globalMatrix));
 
-        mat4.mul(mvpMatrix, mvpMatrix, camera.projectionMatrix);
-        mat4.mul(mvpMatrix, mvpMatrix, viewMatrix);
+        // const mvpMatrix = mat4.create();
+        // mat4.mul(mvpMatrix, mvpMatrix, camera.projectionMatrix);
+        // mat4.mul(mvpMatrix, mvpMatrix, viewMatrix);
 
 
-        gl.uniform3fv(uniforms.uLightColor, vec3.scale(vec3.create(), light.light.color, light.light.intensity));
-        gl.uniform3fv(uniforms.uLightPosition, mat4.getTranslation(vec3.create(), light.globalMatrix));
-        gl.uniform3fv(uniforms.uLightAttenuation, light.light.attenuation);
-        gl.uniform1f(uniforms.uLightAmbient, light.light.ambient);
+        gl.uniform3fv(uniforms.uLight.color,
+            vec3.scale(vec3.create(), light.light.color, light.light.intensity / 255));
+        gl.uniform3fv(uniforms.uLight.position,
+            mat4.getTranslation(vec3.create(), light.globalMatrix));
+        gl.uniform3fv(uniforms.uLight.attenuation, light.light.attenuation);
+        // gl.uniform1f(uniforms.uLightAmbient, light.light.ambient);
 
 
 
         for (const node of scene.nodes) {
-            this.renderNode(node, mvpMatrix);
+            this.renderNode(node, scene.globalMatrix);
         }
 
+        // this.renderNode(scene, scene.globalMatrix);
     }
 
 
@@ -243,15 +249,19 @@ export class Renderer {
         // gl.uniformMatrix4fv(uniforms.uProjectionMatrix, false, this.projectionMatrix);
 
         if (node.mesh) {
-            gl.uniformMatrix4fv(uniforms.uModelViewProjection, false, mvpMatrix);
             for (const primitive of node.mesh.primitives) {
+            gl.uniformMatrix4fv(uniforms.uModelMatrix, false, mvpMatrix);
+
                 this.renderPrimitive(primitive);
             }
         }
         else if (node.model && node.texture) {
             gl.bindVertexArray(node.model.vao);
 
-            gl.uniformMatrix4fv(uniforms.uModelViewProjection, false, mvpMatrix);
+            // gl.uniformMatrix4fv(uniforms.uModelViewProjection, false, mvpMatrix);
+            gl.uniform1f(uniforms.uMaterial.diffuse, node.material.diffuse);
+            gl.uniform1f(uniforms.uMaterial.specular, node.material.specular);
+            gl.uniform1f(uniforms.uMaterial.shininess, node.material.shininess);
 
             gl.activeTexture(gl.TEXTURE0);
             gl.uniform1i(uniforms.uTexture, 0);
@@ -274,11 +284,15 @@ export class Renderer {
         const vao = this.glObjects.get(primitive);
         gl.bindVertexArray(vao);
 
+
+
+
         const material = primitive.material;
-        gl.uniform4fv(uniforms.uBaseColorFactor, material.baseColorFactor);
+        // gl.uniform4fv(uniforms.uBaseColorFactor, material.baseColorFactor);
 
         gl.activeTexture(gl.TEXTURE0);
-        gl.uniform1i(uniforms.uBaseColorTexture, 0);
+        gl.uniform1i(uniforms.uTexture, 0);
+        // gl.uniform1i(uniforms.uBaseColorTexture, 0);
 
         const texture = material.baseColorTexture;
         const glTexture = texture
@@ -290,6 +304,10 @@ export class Renderer {
 
         gl.bindTexture(gl.TEXTURE_2D, glTexture);
         gl.bindSampler(0, glSampler);
+
+        gl.uniform1f(uniforms.uMaterial.diffuse, primitive.material.diffuse);
+        gl.uniform1f(uniforms.uMaterial.specular, primitive.material.specular);
+        gl.uniform1f(uniforms.uMaterial.shininess, primitive.material.shininess);
 
         if (primitive.indices) {
             const mode = primitive.mode;
