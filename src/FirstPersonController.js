@@ -75,16 +75,29 @@ export class FirstPersonController extends Node {
       !this.keys["KeyD"] &&
       !this.keys["KeyA"])
     ) {
-      if (vec3.len(c.velocity) < 0.01) 
-        c.velocity = [0,0,0];
       vec3.scale(c.velocity, c.velocity, 1 - c.friction);
+      
+      // c.velocity[0] *= 1 - c.friction;
+      // c.velocity[2] *= 1 - c.friction;
+
+      if(c.velocity[0] < 0.01)
+        c.velocity[0] = 0;
+      
+      if(c.velocity[2] < 0.01)
+        c.velocity[2] = 0;
 
     }
 
     // 4: limit speed
-    const speed = vec3.length(this.velocity);
-    if (speed > this.maxSpeed + this.velocity[1]) {
-        vec3.scale(this.velocity, this.velocity, this.maxSpeed / speed);
+    // const speed = vec3.length(this.velocity);
+    // if (speed > this.maxSpeed + this.velocity[1]) {
+    //     vec3.scale(this.velocity, this.velocity, this.maxSpeed / speed);
+    // }
+
+    const speed = Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[2] * this.velocity[2]);
+    if (speed > this.maxSpeed) {
+      this.velocity[0] *= this.maxSpeed / speed;
+      this.velocity[2] *= this.maxSpeed / speed;
     }
 
 
@@ -93,7 +106,7 @@ export class FirstPersonController extends Node {
       this.aiborne = true;
     }
     else{
-      this.velocity[1] -= this.gravity * dt;
+      this.velocity[1] -= this.gravity/60;
     }
 
     if(this.translation[1] < 2.5){
