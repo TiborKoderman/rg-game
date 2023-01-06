@@ -86,6 +86,9 @@ export class FirstPersonController extends Node {
       if(c.velocity[2] < 0.01)
         c.velocity[2] = 0;
 
+      if(Math.abs(c.velocity[1]) < 0.01)
+        c.velocity[1] = 0;
+
     }
 
     // 4: limit speed
@@ -105,7 +108,7 @@ export class FirstPersonController extends Node {
       this.velocity[1] = this.jumpSpeed;
       this.aiborne = true;
     }
-    else{
+    else if(this.aiborne){
       this.velocity[1] -= this.gravity/60;
     }
 

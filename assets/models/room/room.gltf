@@ -18,7 +18,7 @@
                         1,
                         1
                     ],
-                    "intensity" : 1,
+                    "intensity" : 159.39999389648438,
                     "type" : "point",
                     "name" : "Light"
                 }
@@ -43,7 +43,8 @@
                 10,
                 11,
                 12,
-                13
+                13,
+                14
             ]
         }
     ],
@@ -246,6 +247,26 @@
         {
             "mesh" : 11,
             "name" : "Cieling"
+        },
+        {
+            "mesh" : 12,
+            "name" : "Enemy",
+            "rotation" : [
+                0,
+                0.9999382495880127,
+                0,
+                0.011110425926744938
+            ],
+            "scale" : [
+                0.29999998211860657,
+                2,
+                0.4999999403953552
+            ],
+            "translation" : [
+                0,
+                3.5,
+                0
+            ]
         }
     ],
     "cameras" : [
@@ -344,6 +365,17 @@
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 7
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
+        },
+        {
+            "doubleSided" : true,
+            "name" : "Material",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 8
                 },
                 "metallicFactor" : 0,
                 "roughnessFactor" : 0.5
@@ -529,6 +561,21 @@
                     "material" : 7
                 }
             ]
+        },
+        {
+            "name" : "Cube.012",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 52,
+                        "NORMAL" : 53,
+                        "TANGENT" : 54,
+                        "TEXCOORD_0" : 55
+                    },
+                    "indices" : 56,
+                    "material" : 8
+                }
+            ]
         }
     ],
     "textures" : [
@@ -563,6 +610,10 @@
         {
             "sampler" : 0,
             "source" : 0
+        },
+        {
+            "sampler" : 0,
+            "source" : 3
         }
     ],
     "images" : [
@@ -580,6 +631,11 @@
             "mimeType" : "image/png",
             "name" : "black-brick-wall-textured-background_53876-63572",
             "uri" : "black-brick-wall-textured-background_53876-63572.png"
+        },
+        {
+            "mimeType" : "image/png",
+            "name" : "texture",
+            "uri" : "texture.png"
         }
     ],
     "accessors" : [
@@ -1014,6 +1070,46 @@
             "componentType" : 5126,
             "count" : 4,
             "type" : "VEC2"
+        },
+        {
+            "bufferView" : 52,
+            "componentType" : 5126,
+            "count" : 24,
+            "max" : [
+                1,
+                1,
+                1
+            ],
+            "min" : [
+                -1,
+                -1,
+                -1
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 53,
+            "componentType" : 5126,
+            "count" : 24,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 54,
+            "componentType" : 5126,
+            "count" : 24,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 55,
+            "componentType" : 5126,
+            "count" : 24,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 56,
+            "componentType" : 5123,
+            "count" : 36,
+            "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
@@ -1328,6 +1424,36 @@
             "byteLength" : 32,
             "byteOffset" : 66100,
             "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 288,
+            "byteOffset" : 66132,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 288,
+            "byteOffset" : 66420,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 384,
+            "byteOffset" : 66708,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 192,
+            "byteOffset" : 67092,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 72,
+            "byteOffset" : 67284,
+            "target" : 34963
         }
     ],
     "samplers" : [
@@ -1338,7 +1464,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 66132,
+            "byteLength" : 67356,
             "uri" : "room.bin"
         }
     ]
