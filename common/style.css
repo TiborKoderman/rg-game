@@ -104,7 +104,7 @@ a.back:hover {
 
 /*Fade in the end screen over 4 seconds*/
 #gameOverMenu {
-    transition: opacity 2s;
+    transition: opacity 5s;
     opacity: 0; 
 }
 #gameOverMenu.visible{

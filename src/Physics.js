@@ -79,8 +79,11 @@ export class Physics {
 
             let brokenPillar = this.scene.getNodeByName("Broken" + b.name);
 
+            tempTranslation[1] -= 3;
+
             b.translation = brokenPillar.translation;
             brokenPillar.translation = tempTranslation;
+
 
             this.scene.pilars -= 1;
 

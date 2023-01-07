@@ -64,7 +64,12 @@ class App extends Application {
 
   update(time, dt) {
     if (this.endCondition) {
-        if (!this.firstTime) return;
+        if (!this.firstTime){
+            this.camera.yaw += Math.random() * 0.3 - 0.15;
+            this.camera.pitch += Math.random() * 0.3 - 0.15;
+            this.camera.update(dt, time, this.light);
+        return;} 
+            
         
         document.getElementById("gameOverMenu").style.visibility = "visible";
         document.getElementById("gameOverMenu").classList.add("visible");
