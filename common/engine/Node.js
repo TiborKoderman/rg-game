@@ -17,6 +17,10 @@ export class Node {
     this._matrix = options.matrix ? mat4.clone(options.matrix) : mat4.create();
 
 
+    this.name = options.name ?? null;
+    this.velocity = options.velocity ?? undefined;
+
+
     if (options.matrix) {
       this.updateTransformationComponents();
     } else if (options.translation || options.rotation || options.scale) {

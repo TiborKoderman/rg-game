@@ -370,6 +370,7 @@ export class GLTFLoader {
             options.light = await this.loadLight(nameOrIndex);
 
         }
+        options.name = gltfSpec.name;
 
         var node;
         if (gltfSpec.camera !== undefined) {
@@ -380,6 +381,11 @@ export class GLTFLoader {
             node = new Enemy(options);
         }
         else {
+            if (gltfSpec.name === 'Laser'){
+                options.laser = true;
+                options.velocity = [0, 0, 0];
+            }
+
             node = new Node(options);
         }
         this.cache.set(gltfSpec, node);
@@ -410,6 +416,16 @@ export class GLTFLoader {
         const scene = new Scene(options);
         this.cache.set(gltfSpec, scene);
         return scene;
+    }
+
+    async unLoadNode(nameOrIndex) {
+        const gltfSpec = this.findByNameOrIndex(this.gltf.nodes, nameOrIndex);
+        if (!gltfSpec) {
+            return null;
+        }
+        if (this.cache.has(gltfSpec)) {
+            this.cache.delete(gltfSpec);
+        }
     }
 
 }

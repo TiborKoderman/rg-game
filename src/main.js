@@ -2,9 +2,7 @@ import { Application } from "../common/engine/Application.js";
 
 import { Renderer } from "./Renderer.js";
 import { Physics } from "./Physics.js";
-import { Camera } from "./Camera.js";
 import { GLTFLoader } from "./GLTFLoader.js";
-import { FirstPersonController } from "../common/engine/FirstPersonController.js";
 
 
 class App extends Application {
@@ -14,7 +12,6 @@ class App extends Application {
         
         this.renderer = new Renderer(this.gl);
 
-        // await this.load('../common/models/rocks/rocks.gltf')
         await this.load('../assets/models/room/room.gltf')
 
         
@@ -38,11 +35,20 @@ class App extends Application {
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
         this.camera = await this.loader.loadNode('Camera');
         this.light = await this.loader.loadNode('Light');
+        this.light.intensity = this.light.light.intensity;
         this.enemy = await this.loader.loadNode('Enemy');
+
+        this.laser = await this.loader.loadNode('Laser');
+        this.enemy.laser = this.laser;
+
+        // this.laser
+        // this.loader.unLoadNode('Laser');
+
 
         console.log(this.enemy);
         // console.log(this.camera);
         console.log(this.scene);
+
 
         
         
@@ -60,8 +66,8 @@ class App extends Application {
     }
 
     update(time, dt) {
-        this.camera.update(dt, time);
-        this.enemy.update(dt, this.camera, time);
+        this.camera.update(dt, time, this.light);
+        this.enemy.update(dt, this.camera, time, this.light);
         this.physics.update(dt);
     }
 
