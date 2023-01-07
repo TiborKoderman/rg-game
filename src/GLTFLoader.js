@@ -10,6 +10,7 @@ import { OrthographicCamera } from './OrthographicCamera.js';
 import { Scene } from './Scene.js';
 
 import { FirstPersonController } from './FirstPersonController.js';
+import { Enemy } from './Enemy.js';
 
 import { PointLight } from './PointLight.js';
 import { DirectionalLight } from './DirectionalLight.js';
@@ -365,17 +366,26 @@ export class GLTFLoader {
             options.mesh = await this.loadMesh(gltfSpec.mesh);
         }
         if (gltfSpec?.extensions?.KHR_lights_punctual?.light !== undefined) {
-            console.log("loading light");
+            // console.log("loading light");
             options.light = await this.loadLight(nameOrIndex);
 
         }
+        options.name = gltfSpec.name;
 
         var node;
         if (gltfSpec.camera !== undefined) {
             options.camera = await this.loadCamera(gltfSpec.camera);
             node = new FirstPersonController(options);
         }
+        else if (gltfSpec.name === 'Enemy') {
+            node = new Enemy(options);
+        }
         else {
+            if (gltfSpec.name === 'Laser'){
+                options.laser = true;
+                options.velocity = [0, 0, 0];
+            }
+
             node = new Node(options);
         }
         this.cache.set(gltfSpec, node);
@@ -406,6 +416,16 @@ export class GLTFLoader {
         const scene = new Scene(options);
         this.cache.set(gltfSpec, scene);
         return scene;
+    }
+
+    async unLoadNode(nameOrIndex) {
+        const gltfSpec = this.findByNameOrIndex(this.gltf.nodes, nameOrIndex);
+        if (!gltfSpec) {
+            return null;
+        }
+        if (this.cache.has(gltfSpec)) {
+            this.cache.delete(gltfSpec);
+        }
     }
 
 }

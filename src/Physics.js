@@ -14,6 +14,7 @@ export class Physics {
                 // console.log(node.velocity);
                 // node.updateTransformationMatrix()
 
+
                 this.scene.traverse(other => {
                     if (node !== other) {
                         this.resolveCollision(node, other);
@@ -69,6 +70,32 @@ export class Physics {
         if (!isColliding) {
             return;
         }
+        
+        if(a.name == "Laser" && b.name.startsWith("Pillar")){
+
+            let tempTranslation = vec3.clone(b.translation);
+            this.
+
+            console.log("Laser hit pillar");
+            return;
+        }
+        // console.log(b);
+        if(a.name == "Laser" && b.name == "Camera"){
+            console.log("Player hit by laser, hp:" + b.hp);
+            b.hp -= 1;
+            return;
+        }
+
+        if(a.name == "Laser")
+        {
+            return
+        }
+
+        if(a.name == "Camera" && b.name == "Laser")
+        {
+            return
+        }
+
 
         // Move node A minimally to avoid collision.
         const diffa = vec3.sub(vec3.create(), bBox.max, aBox.min);

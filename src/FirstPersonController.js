@@ -20,6 +20,11 @@ export class FirstPersonController extends Node {
     this.keydownHandler = this.keydownHandler.bind(this);
     this.keyupHandler = this.keyupHandler.bind(this);
     this.keys = {};
+
+    this.hp = 1000;
+    this.lastHp = 1000;
+
+    this.translation1secondAgo = this.translation;
     // console.log("global matrix", this.globalMatrix);
   }
 
@@ -35,7 +40,7 @@ export class FirstPersonController extends Node {
     );
   }
 
-  update(dt) {
+  update(dt, time, light) {
     const c = this;
 
     const cos = Math.cos(this.yaw);
@@ -89,6 +94,33 @@ export class FirstPersonController extends Node {
       if(Math.abs(c.velocity[1]) < 0.01)
         c.velocity[1] = 0;
 
+    }
+    else{
+      // walking animation screen shake
+      
+
+
+    }
+
+    // if hp has decreaseed, shake screen
+    if(this.hp < this.lastHp){
+      this.translation1secondAgo = this.translation;
+      this._translation[0] += Math.random() * 0.1 - 0.05;
+      this._translation[2] += Math.random() * 0.1 - 0.05;
+      this.yaw += Math.random() * 0.1 - 0.05;
+      this.pitch += Math.random() * 0.1 - 0.05;
+      this.lastHp = this.hp;
+
+      // turn the light red
+      light.light.color[0] = 1;
+      light.light.color[1] = 0;
+      light.light.color[2] = 0;
+    }
+    else{
+      // turn the light back to white
+      light.light.color[0] = 1;
+      light.light.color[1] = 1;
+      light.light.color[2] = 1;
     }
 
     // 4: limit speed
