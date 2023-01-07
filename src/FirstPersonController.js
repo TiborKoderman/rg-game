@@ -21,7 +21,7 @@ export class FirstPersonController extends Node {
     this.keyupHandler = this.keyupHandler.bind(this);
     this.keys = {};
 
-    this.hp = 1000;
+    this.hp = 200;
     this.lastHp = 1000;
 
     this.translation1secondAgo = this.translation;

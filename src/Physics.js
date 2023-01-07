@@ -2,8 +2,10 @@ import { vec3, mat4 } from '../lib/gl-matrix-module.js';
 
 export class Physics {
 
-    constructor(scene) {
+    constructor(scene, player) {
         this.scene = scene;
+        this.scene.pilars = 4;
+        this.player = player;
     }
 
     update(dt) {
@@ -74,14 +76,22 @@ export class Physics {
         if(a.name == "Laser" && b.name.startsWith("Pillar")){
 
             let tempTranslation = vec3.clone(b.translation);
-            this.
 
-            console.log("Laser hit pillar");
+            let brokenPillar = this.scene.getNodeByName("Broken" + b.name);
+
+            b.translation = brokenPillar.translation;
+            brokenPillar.translation = tempTranslation;
+
+            this.scene.pilars -= 1;
+
+            console.log(this.scene.pilars)
+
+            // console.log("Laser hit pillar");
             return;
         }
         // console.log(b);
         if(a.name == "Laser" && b.name == "Camera"){
-            console.log("Player hit by laser, hp:" + b.hp);
+            // console.log("Player hit by laser, hp:" + b.hp);
             b.hp -= 1;
             return;
         }

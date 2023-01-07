@@ -24,7 +24,7 @@ class App extends Application {
             }
         });
 
-        this.physics = new Physics(this.scene);
+        this.physics = new Physics(this.scene, this.camera);
 
     }
 
@@ -33,6 +33,7 @@ class App extends Application {
         await this.loader.load(uri);
 
         this.scene = await this.loader.loadScene(this.loader.defaultScene);
+        this.scene.loader = this.loader;
         this.camera = await this.loader.loadNode('Camera');
         this.light = await this.loader.loadNode('Light');
         this.light.intensity = this.light.light.intensity;
@@ -66,6 +67,17 @@ class App extends Application {
     }
 
     update(time, dt) {
+
+
+        if(this.scene.pilars <= 0){
+            console.log("You win!");
+            return
+        }
+        else if(this.camera.hp <= 0){
+            console.log("You lose!");
+            return
+        }
+
         this.camera.update(dt, time, this.light);
         this.enemy.update(dt, this.camera, time, this.light);
         this.physics.update(dt);
