@@ -5,6 +5,16 @@ export class Scene extends Node {
     constructor(options = {}) {
         super(options);
         this.nodes = [...(options.nodes ?? [])];
+
+    }
+
+    getNodeByName(name) {
+        for (const node of this.nodes) {
+            if (node.name === name) {
+                return node;
+            }
+        }
+        return null;
     }
 
     addNode(node) {
