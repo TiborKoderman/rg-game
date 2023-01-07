@@ -4,6 +4,8 @@ export class Application {
         this._update = this._update.bind(this);
         this._render = this._render.bind(this);
 
+        this.endCondition = false;
+
         this.gl = canvas.getContext('webgl2', glOptions);
     }
 
@@ -46,6 +48,14 @@ export class Application {
 
             this.resize(width, height);
         }
+    }
+
+    restart() {
+        this.endCondition = false;
+    }
+
+    displayEndScreen() {
+        
     }
 
     start() {}
