@@ -30,17 +30,17 @@ export class Enemy extends Node {
 
     let angle_diff = angleToPlayer - this.yaw;
 
-    if (angle_diff > Math.PI) {
-      angle_diff -= 2 * Math.PI;
-    }
-    if (angle_diff < -Math.PI) {
+    if (angle_diff < Math.PI) {
       angle_diff += 2 * Math.PI;
+    }
+    if (angle_diff > -Math.PI) {
+      angle_diff -= 2 * Math.PI;
     }
 
     this.yaw += angle_diff * dt * 1.2;
 
     const rotation = quat.create();
-    quat.rotateY(rotation, rotation, this.yaw - Math.PI / 2);
+    quat.rotateY(rotation, rotation, this.yaw + Math.PI / 2);
     this.rotation = rotation;
 
     //rotate laser towards player and move it so it's offset from the enemy by 1 unit, the laser is rotated 90 degrees so it points in the right direction
@@ -94,6 +94,7 @@ export class Enemy extends Node {
     if (time > this.timeOfLastShot + 2) {
       this.attacking = false;
     }
+
   }
 
   deathAnimation(dt, time) {
